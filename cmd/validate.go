@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strconv"
-	"strings"
 
+	"github.com/chidinma21/env-lint/internal/validator"
 	"github.com/fatih/color"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
@@ -21,11 +20,6 @@ var (
 
 var envFile string
 var schemaFile string
-
-type SchemaRule struct {
-	Type     string `json:"type"`
-	Required bool   `json:"required"`
-}
 
 var validateCmd = &cobra.Command{
 	Use:   "validate",
@@ -49,7 +43,7 @@ You can specify which keys are required and what type of value (string, number, 
 			os.Exit(1)
 		}
 
-		var schema map[string]SchemaRule
+		var schema map[string]validator.SchemaRule
 		if err := json.Unmarshal(schemaData, &schema); err != nil {
 			fmt.Printf("%s Invalid JSON schema: %v\n", fail("ERROR"), err)
 			os.Exit(1)
@@ -58,42 +52,18 @@ You can specify which keys are required and what type of value (string, number, 
 
 		// Validate
 		fmt.Println(debug("\n🔍 Validating environment variables...\n"))
-		failed := false
 
-		for key, rule := range schema {
-			value, exists := envMap[key]
+		validateRes := validator.ValidateEnv(envMap, schema)
 
-			if !exists {
-				if rule.Required {
-					fmt.Printf("%-14s %-25s %s\n", fail("ERROR"), key, "Missing required key")
-					failed = true
-				} else {
-					fmt.Printf("%-14s %-25s %s\n", warn("WARN"), key, "Optional key missing (ok)")
-				}
-				continue
-			}
-
-			switch rule.Type {
-			case "string":
-				// always valid
-			case "number":
-				if _, err := strconv.Atoi(value); err != nil {
-					fmt.Printf("%-14s %-25s %s\n", fail("ERROR"), key, fmt.Sprintf("Expected number but got: %s", value))
-					failed = true
-				}
-			case "boolean":
-				val := strings.ToLower(value)
-				if val != "true" && val != "false" {
-					fmt.Printf("%-14s %-25s %s\n", fail("ERROR"), key, fmt.Sprintf("Expected boolean but got: %s", value))
-					failed = true
-				}
-			default:
-				fmt.Printf("%-14s %-25s %s\n", warn("WARN"), key, fmt.Sprintf("Unknown type '%s' — skipping check", rule.Type))
-			}
+		for key, value := range validateRes.Errors {
+			fmt.Printf("%-14s %-25s %s\n", fail("ERROR"), key, value)
+		}
+		for key, value := range validateRes.Warnings {
+			fmt.Printf("%-14s %-25s %s\n", warn("WARN"), key, value)
 		}
 
 		fmt.Println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-		if failed {
+		if !validateRes.Passed {
 			fmt.Println(fail("❌ Validation failed. Please fix the errors above."))
 			os.Exit(1)
 		} else {

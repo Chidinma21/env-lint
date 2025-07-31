@@ -1,50 +1,34 @@
 /*
-Copyright © 2025 CHIDINMA ONUORA <CHIDINMAONUORA1@GMAIL.COM>
+Copyright © 2025 Chidinma Onuora <chidinmaonuora1@gmail.com>
 */
+
 package cmd
 
 import (
-	// "fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "env-lint",
-	Short: "A brief description of your application",
-	Long: `A longer description - in root - that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "Validate your .env file against a JSON schema",
+	Long: `env-lint is a CLI tool that helps you validate environment variables 
+defined in a .env file against a user-defined JSON schema.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
-	Run: func(cmd *cobra.Command, args []string) {
-		// fmt.Println("root called")
-	},
+It supports checking for required keys and verifying types like string, number, and boolean.
+
+Example usage:
+  env-lint validate -s schema.json
+`,
+	Run: func(cmd *cobra.Command, args []string) {},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+// Execute runs the root command and its subcommands
 func Execute() {
-	err := rootCmd.Execute()
-	if err != nil {
+	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
 	}
 }
 
-func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.env-lint.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
+func init() {}
