@@ -9,6 +9,7 @@ import (
 type SchemaRule struct {
 	Type     string `json:"type"`
 	Required bool   `json:"required"`
+	Default  interface{}    `json:"default"`
 }
 
 type ValidationResult struct {
@@ -26,10 +27,18 @@ func ValidateEnv(envMap map[string]string, schema map[string]SchemaRule) Validat
 		if !ok {
 			if rule.Required {
 				errors[key] = "Missing required key"
+				continue
 			} else {
-				warnings[key] = "Missing optional key (ok)"
+				if rule.Default != nil {
+					defaultStr := fmt.Sprintf("%v", rule.Default)
+					envMap[key] = defaultStr
+					value = defaultStr
+					warnings[key] = "Missing optional key — using default"
+				} else {
+					warnings[key] = "Missing optional key (ok)"
+					continue				
+				}
 			}
-			continue
 		}
 
 		switch rule.Type {

@@ -116,6 +116,62 @@ func TestValidateEnv(t *testing.T) {
 			},
 			wantWarns: map[string]string{},
 		},
+		{
+			name: "Use default with correct type",
+			env: map[string]string{
+				"PORT":     "3000",
+				"APP_NAME": "MyApp",
+			},
+			schema: map[string]SchemaRule{
+				"PORT": {
+					Type:     "number",
+					Required: true,
+				},
+				"DEBUG": {
+					Type:     "boolean",
+					Required: false,
+					Default: true,
+				},
+				"APP_NAME": {
+					Type:     "string",
+					Required: true,
+				},
+			},
+			wantPass: true,
+			wantErrs: map[string]string{},
+			wantWarns: map[string]string{
+				"DEBUG": "Missing optional key — using default",
+			},
+		},
+		{
+			name: "Use default with wrong type",
+			env: map[string]string{
+				"PORT":     "3000",
+				"APP_NAME": "MyApp",
+			},
+			schema: map[string]SchemaRule{
+				"PORT": {
+					Type:     "number",
+					Required: true,
+				},
+				"DEBUG": {
+					Type:     "boolean",
+					Required: false,
+					Default: "truth",
+				},
+				"APP_NAME": {
+					Type:     "string",
+					Required: true,
+				},
+			},
+			wantPass: false,
+			wantErrs: map[string]string{
+				"DEBUG": "Expected boolean but got: truth",
+			},
+			wantWarns: map[string]string{
+				"DEBUG": "Missing optional key — using default",
+			},
+		},
 	}
 
 	for _, tt := range tests {
