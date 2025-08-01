@@ -130,7 +130,7 @@ func TestValidateEnv(t *testing.T) {
 				"DEBUG": {
 					Type:     "boolean",
 					Required: false,
-					Default: true,
+					Default:  true,
 				},
 				"APP_NAME": {
 					Type:     "string",
@@ -157,7 +157,7 @@ func TestValidateEnv(t *testing.T) {
 				"DEBUG": {
 					Type:     "boolean",
 					Required: false,
-					Default: "truth",
+					Default:  "truth",
 				},
 				"APP_NAME": {
 					Type:     "string",
@@ -171,6 +171,63 @@ func TestValidateEnv(t *testing.T) {
 			wantWarns: map[string]string{
 				"DEBUG": "Missing optional key — using default",
 			},
+		},
+		{
+			name: "Allowed keys - invalid",
+			env: map[string]string{
+				"PORT":     "3000",
+				"DEBUG":    "true",
+				"APP_NAME": "MyApps",
+			},
+			schema: map[string]SchemaRule{
+				"PORT": {
+					Type:     "number",
+					Required: true,
+					Allowed:  []interface{}{3001, 3002},
+				},
+				"DEBUG": {
+					Type:     "boolean",
+					Required: false,
+				},
+				"APP_NAME": {
+					Type:     "string",
+					Required: true,
+					Allowed:  []interface{}{"MyApp", "NewApp"},
+				},
+			},
+			wantPass: false,
+			wantErrs: map[string]string{
+				"APP_NAME": "Value 'MyApps' is not allowed. Expected one of: [MyApp NewApp]",
+				"PORT":     "Value '3000' is not allowed. Expected one of: [3001 3002]",
+			},
+			wantWarns: map[string]string{},
+		},
+		{
+			name: "Allowed keys - valid",
+			env: map[string]string{
+				"PORT":     "3000",
+				"DEBUG":    "true",
+				"APP_NAME": "MyApp",
+			},
+			schema: map[string]SchemaRule{
+				"PORT": {
+					Type:     "number",
+					Required: true,
+					Allowed:  []interface{}{3000, 3002},
+				},
+				"DEBUG": {
+					Type:     "boolean",
+					Required: false,
+				},
+				"APP_NAME": {
+					Type:     "string",
+					Required: true,
+					Allowed:  []interface{}{"MyApp", "NewApp"},
+				},
+			},
+			wantPass:  true,
+			wantErrs:  map[string]string{},
+			wantWarns: map[string]string{},
 		},
 	}
 

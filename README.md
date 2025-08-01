@@ -10,7 +10,8 @@ Tame your environment configs. Catch missing or invalid `.env` variables *before
 
 - ✅ Validate required environment variables
 - 🔢 Type checking for `string`, `number`, and `boolean`
-- ⚠️ Support for optional keys
+- ⚠️ Support for optional keys and default values
+- 🎟️ Support for allowed values (enum)
 - 🎨 Color-coded terminal output for easy debugging
 - ⚙️ Works great in development and CI/CD pipelines
 

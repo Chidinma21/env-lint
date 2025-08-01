@@ -7,9 +7,10 @@ import (
 )
 
 type SchemaRule struct {
-	Type     string `json:"type"`
-	Required bool   `json:"required"`
-	Default  interface{}    `json:"default"`
+	Type     string        `json:"type"`
+	Required bool          `json:"required"`
+	Default  interface{}   `json:"default"`
+	Allowed  []interface{} `json:"allowed"`
 }
 
 type ValidationResult struct {
@@ -36,8 +37,23 @@ func ValidateEnv(envMap map[string]string, schema map[string]SchemaRule) Validat
 					warnings[key] = "Missing optional key — using default"
 				} else {
 					warnings[key] = "Missing optional key (ok)"
-					continue				
+					continue
 				}
+			}
+		}
+
+		if len(rule.Allowed) > 0 {
+			isValid := false
+			valueStr := fmt.Sprintf("%v", value)
+			for _, allowed := range rule.Allowed {
+				allowedStr := fmt.Sprintf("%v", allowed)
+				if valueStr == allowedStr {
+					isValid = true
+					break
+				}
+			}
+			if !isValid {
+				errors[key] = fmt.Sprintf("Value '%s' is not allowed. Expected one of: %v", value, rule.Allowed)
 			}
 		}
 
