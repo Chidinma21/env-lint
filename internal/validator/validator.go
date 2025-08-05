@@ -2,6 +2,7 @@ package validator
 
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -11,6 +12,7 @@ type SchemaRule struct {
 	Required bool          `json:"required"`
 	Default  interface{}   `json:"default"`
 	Allowed  []interface{} `json:"allowed"`
+	Pattern  string        `json:"pattern"`
 }
 
 type ValidationResult struct {
@@ -59,7 +61,14 @@ func ValidateEnv(envMap map[string]string, schema map[string]SchemaRule) Validat
 
 		switch rule.Type {
 		case "string":
-			// string is always valid
+			// string is always a valid type
+			// validate for regex
+			matched, err := regexp.MatchString(rule.Pattern, value)
+			if err != nil {
+				warnings[key] = fmt.Sprintf("Invalid regex pattern: %s", rule.Pattern)
+			} else if !matched {
+				errors[key] = fmt.Sprintf("Value does not match pattern: %s", rule.Pattern)
+			}
 		case "number":
 			if _, err := strconv.Atoi(value); err != nil {
 				errors[key] = fmt.Sprintf("Expected number but got: %s", value)

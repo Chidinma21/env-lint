@@ -229,6 +229,42 @@ func TestValidateEnv(t *testing.T) {
 			wantErrs:  map[string]string{},
 			wantWarns: map[string]string{},
 		},
+		{
+			name: "Pattern mismatch",
+			env: map[string]string{
+				"EMAIL": "not-an-email",
+			},
+			schema: map[string]SchemaRule{
+				"EMAIL": {
+					Type:     "string",
+					Required: true,
+					Pattern:  `^[\w.-]+@[\w.-]+\.\w+$`,
+				},
+			},
+			wantPass: false,
+			wantErrs: map[string]string{
+				"EMAIL": "Value does not match pattern: ^[\\w.-]+@[\\w.-]+\\.\\w+$",
+			},
+			wantWarns: map[string]string{},
+		},
+		{
+			name: "Invalid pattern",
+			env: map[string]string{
+				"EMAIL": "not-an-email",
+			},
+			schema: map[string]SchemaRule{
+				"EMAIL": {
+					Type:     "string",
+					Required: true,
+					Pattern:  `*invalid[`,
+				},
+			},
+			wantPass: true,
+			wantErrs: map[string]string{},
+			wantWarns: map[string]string{
+				"EMAIL": "Invalid regex pattern: *invalid[",
+			},
+		},
 	}
 
 	for _, tt := range tests {
