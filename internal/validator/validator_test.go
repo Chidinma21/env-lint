@@ -2,6 +2,14 @@ package validator
 
 import "testing"
 
+func IntPtr(i int) *int {
+	return &i
+}
+
+func Float64Ptr(f float64) *float64 {
+	return &f
+}
+
 func TestValidateEnv(t *testing.T) {
 	tests := []struct {
 		name      string
@@ -230,6 +238,22 @@ func TestValidateEnv(t *testing.T) {
 			wantWarns: map[string]string{},
 		},
 		{
+			name: "Valid pattern",
+			env: map[string]string{
+				"EMAIL": "hello@email.com",
+			},
+			schema: map[string]SchemaRule{
+				"EMAIL": {
+					Type:     "string",
+					Required: true,
+					Pattern:  `^[\w.-]+@[\w.-]+\.\w+$`,
+				},
+			},
+			wantPass: true,
+			wantErrs: map[string]string{},
+			wantWarns: map[string]string{},
+		},
+		{
 			name: "Pattern mismatch",
 			env: map[string]string{
 				"EMAIL": "not-an-email",
@@ -264,6 +288,95 @@ func TestValidateEnv(t *testing.T) {
 			wantWarns: map[string]string{
 				"EMAIL": "Invalid regex pattern: *invalid[",
 			},
+		},
+		{
+			name: "Valid length",
+			env: map[string]string{
+				"PHONE": "08020718222",
+			},
+			schema: map[string]SchemaRule{
+				"PHONE": {
+					Type:     "string",
+					Required: true,
+					Length: IntPtr(11),
+				},
+			},
+			wantPass: true,
+			wantErrs: map[string]string{},
+			wantWarns: map[string]string{},
+		},
+		{
+			name: "Valid length",
+			env: map[string]string{
+				"PHONE": "08020718222",
+			},
+			schema: map[string]SchemaRule{
+				"PHONE": {
+					Type:     "string",
+					Required: true,
+					Length: IntPtr(12),
+				},
+			},
+			wantPass: false,
+			wantErrs: map[string]string{
+				"PHONE": "Expected string of length [12] but got: 08020718222",
+			},
+			wantWarns: map[string]string{},
+		},
+		{
+			name: "Valid Min-Max Range",
+			env: map[string]string{
+				"PORT":     "3000",
+			},
+			schema: map[string]SchemaRule{
+				"PORT": {
+					Type:     "number",
+					Required: true,
+					Min: Float64Ptr(3000),
+					Max: Float64Ptr(9999),
+				},
+			},
+			wantPass:  true,
+			wantErrs:  map[string]string{},
+			wantWarns: map[string]string{},
+		},
+		{
+			name: "Exceed Max Range",
+			env: map[string]string{
+				"PORT":     "10000",
+			},
+			schema: map[string]SchemaRule{
+				"PORT": {
+					Type:     "number",
+					Required: true,
+					Min: Float64Ptr(3000),
+					Max: Float64Ptr(9999),
+				},
+			},
+			wantPass:  false,
+			wantErrs:  map[string]string{
+				"PORT": "Expected number <= 9999.00 but got: 10000.00",
+			},
+			wantWarns: map[string]string{},
+		},
+		{
+			name: "Exceed Max Range",
+			env: map[string]string{
+				"PORT":     "1999",
+			},
+			schema: map[string]SchemaRule{
+				"PORT": {
+					Type:     "number",
+					Required: true,
+					Min: Float64Ptr(3000),
+					Max: Float64Ptr(9999),
+				},
+			},
+			wantPass:  false,
+			wantErrs:  map[string]string{
+				"PORT": "Expected number >= 3000.00 but got: 1999.00",
+			},
+			wantWarns: map[string]string{},
 		},
 	}
 

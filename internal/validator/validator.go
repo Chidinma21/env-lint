@@ -8,11 +8,16 @@ import (
 )
 
 type SchemaRule struct {
-	Type     string        `json:"type"`
-	Required bool          `json:"required"`
-	Default  interface{}   `json:"default"`
-	Allowed  []interface{} `json:"allowed"`
-	Pattern  string        `json:"pattern"`
+	Type      string        `json:"type"`
+	Required  bool          `json:"required"`
+	Default   interface{}   `json:"default"`
+	Allowed   []interface{} `json:"allowed"`
+	Pattern   string        `json:"pattern"`
+	Length    *int          `json:"length"`
+	MaxLength *int          `json:"maxLength"`
+	MinLength *int          `json:"minLength"`
+	Min       *float64      `json:"min"`
+	Max       *float64      `json:"max"`
 }
 
 type ValidationResult struct {
@@ -61,17 +66,36 @@ func ValidateEnv(envMap map[string]string, schema map[string]SchemaRule) Validat
 
 		switch rule.Type {
 		case "string":
-			// string is always a valid type
-			// validate for regex
 			matched, err := regexp.MatchString(rule.Pattern, value)
 			if err != nil {
 				warnings[key] = fmt.Sprintf("Invalid regex pattern: %s", rule.Pattern)
 			} else if !matched {
 				errors[key] = fmt.Sprintf("Value does not match pattern: %s", rule.Pattern)
 			}
+
+			if rule.Length != nil && len(value) != *rule.Length {
+				errors[key] = fmt.Sprintf("Expected string of length [%v] but got: %s", *rule.Length, value)
+			}
+
+			if rule.MaxLength != nil && len(value) > *rule.MaxLength {
+				errors[key] = fmt.Sprintf("Expected max length [%v] but got: %s", *rule.MaxLength, value)
+			}
+
+			if rule.MinLength != nil && len(value) < *rule.MinLength {
+				errors[key] = fmt.Sprintf("Expected min length [%v] but got: %s", *rule.MinLength, value)
+			}
 		case "number":
-			if _, err := strconv.Atoi(value); err != nil {
+			num, err := strconv.ParseFloat(value, 64)
+			if err != nil {
 				errors[key] = fmt.Sprintf("Expected number but got: %s", value)
+			}
+
+			if rule.Min != nil && num < *rule.Min {
+				errors[key] = fmt.Sprintf("Expected number >= %.2f but got: %.2f", *rule.Min, num)
+			}
+
+			if rule.Max != nil && num > *rule.Max {
+				errors[key] = fmt.Sprintf("Expected number <= %.2f but got: %.2f", *rule.Max, num)
 			}
 		case "boolean":
 			lower := strings.ToLower(value)
