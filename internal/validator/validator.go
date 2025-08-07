@@ -8,16 +8,17 @@ import (
 )
 
 type SchemaRule struct {
-	Type      string        `json:"type"`
-	Required  bool          `json:"required"`
-	Default   interface{}   `json:"default"`
-	Allowed   []interface{} `json:"allowed"`
-	Pattern   string        `json:"pattern"`
-	Length    *int          `json:"length"`
-	MaxLength *int          `json:"maxLength"`
-	MinLength *int          `json:"minLength"`
-	Min       *float64      `json:"min"`
-	Max       *float64      `json:"max"`
+	Type        string        `json:"type"`
+	Required    bool          `json:"required"`
+	Default     interface{}   `json:"default"`
+	Allowed     []interface{} `json:"allowed"`
+	Pattern     string        `json:"pattern"`
+	Length      *int          `json:"length"`
+	MaxLength   *int          `json:"maxLength"`
+	MinLength   *int          `json:"minLength"`
+	Min         *float64      `json:"min"`
+	Max         *float64      `json:"max"`
+	CustomError string        `json:"customError"`
 }
 
 type ValidationResult struct {
@@ -104,6 +105,10 @@ func ValidateEnv(envMap map[string]string, schema map[string]SchemaRule) Validat
 			}
 		default:
 			warnings[key] = fmt.Sprintf("Unknown type '%s' — skipping check", rule.Type)
+		}
+
+		if errors[key] != "" && rule.CustomError != "" {
+			errors[key] = rule.CustomError
 		}
 	}
 
