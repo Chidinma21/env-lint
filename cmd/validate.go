@@ -20,6 +20,7 @@ var (
 
 var envFile string
 var schemaFile string
+var suppressWarnings bool
 
 var validateCmd = &cobra.Command{
 	Use:   "validate",
@@ -34,6 +35,7 @@ You can specify which keys are required and what type of value (string, number, 
 			fmt.Printf("%s Failed to read .env file: %v\n", fail("❌"), err)
 			os.Exit(1)
 		}
+		// fmt.Println("\n")
 		fmt.Println(success("🚀 .env file loaded successfully"))
 
 		// Load schema
@@ -51,23 +53,28 @@ You can specify which keys are required and what type of value (string, number, 
 		fmt.Println(success("🚀 schema file loaded successfully"))
 
 		// Validate
-		fmt.Println(debug("\n🔍 Validating environment variables...\n"))
+		fmt.Println(debug("\n🔍 Validating environment variables..."))
 
 		validateRes := validator.ValidateEnv(envMap, schema)
 
 		for key, value := range validateRes.Errors {
 			fmt.Printf("%-14s %-25s %s\n", fail("ERROR"), key, value)
 		}
-		for key, value := range validateRes.Warnings {
-			fmt.Printf("%-14s %-25s %s\n", warn("WARN"), key, value)
-		}
 
-		fmt.Println("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+		fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 		if !validateRes.Passed {
 			fmt.Println(fail("❌ Validation failed. Please fix the errors above."))
+			if !suppressWarnings {
+				printValidationWarnings(validateRes.Warnings)
+			}
+			fmt.Println("\n")
 			os.Exit(1)
 		} else {
 			fmt.Println(success("✅ All checks passed. Your .env config looks great!"))
+			if !suppressWarnings {
+				printValidationWarnings(validateRes.Warnings)
+			}
+			fmt.Println("\n")
 		}
 	},
 }
@@ -76,4 +83,15 @@ func init() {
 	rootCmd.AddCommand(validateCmd)
 	validateCmd.Flags().StringVarP(&envFile, "env", "e", ".env", "Path to the .env file")
 	validateCmd.Flags().StringVarP(&schemaFile, "schema", "s", "schema.json", "Path to the schema file (JSON)")
+	validateCmd.Flags().BoolVarP(&suppressWarnings, "suppress-warnings", "w", false, "Suppress warning messages in output")
+}
+
+func printValidationWarnings(warnings map[string]string) {
+	if len(warnings) == 0 {
+		return
+	}
+
+	for key, value := range warnings {
+		fmt.Printf("%-14s %-25s %s\n", warn("WARN"), key, value)
+	}
 }
