@@ -8,17 +8,17 @@ import (
 )
 
 type SchemaRule struct {
-	Type        string        `json:"type"`
-	Required    bool          `json:"required"`
-	Default     interface{}   `json:"default"`
-	Allowed     []interface{} `json:"allowed"`
-	Pattern     string        `json:"pattern"`
-	Length      *int          `json:"length"`
-	MaxLength   *int          `json:"maxLength"`
-	MinLength   *int          `json:"minLength"`
-	Min         *float64      `json:"min"`
-	Max         *float64      `json:"max"`
-	CustomError string        `json:"customError"`
+	Type        string        `json:"type" yaml:"type"`
+	Required    bool          `json:"required,omitempty" yaml:"required,omitempty"`
+	Default     interface{}   `json:"default,omitempty" yaml:"default,omitempty"`
+	Allowed     []interface{} `json:"allowed,omitempty" yaml:"allowed,omitempty"`
+	Pattern     string        `json:"pattern,omitempty" yaml:"pattern,omitempty"`
+	Length      *int          `json:"length,omitempty" yaml:"length,omitempty"`
+	MaxLength   *int          `json:"maxLength,omitempty" yaml:"maxLength,omitempty"`
+	MinLength   *int          `json:"minLength,omitempty" yaml:"minLength,omitempty"`
+	Min         *float64      `json:"min,omitempty" yaml:"min,omitempty"`
+	Max         *float64      `json:"max,omitempty" yaml:"max,omitempty"`
+	CustomError string        `json:"customError,omitempty" yaml:"customError,omitempty"`
 }
 
 type ValidationResult struct {

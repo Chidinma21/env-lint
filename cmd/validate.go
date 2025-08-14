@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/chidinma21/env-lint/internal/validator"
 	"github.com/fatih/color"
@@ -45,11 +48,24 @@ You can specify which keys are required and what type of value (string, number, 
 			os.Exit(1)
 		}
 
+		ext := filepath.Ext(schemaFile)
 		var schema map[string]validator.SchemaRule
-		if err := json.Unmarshal(schemaData, &schema); err != nil {
-			fmt.Printf("%s Invalid JSON schema: %v\n", fail("ERROR"), err)
+		switch ext {
+		case ".json":
+			if err := json.Unmarshal(schemaData, &schema); err != nil {
+				fmt.Printf("%s Invalid JSON schema: %v\n", fail("❌"), err)
+				os.Exit(1)
+			}
+		case ".yaml", ".yml":
+			if err := yaml.Unmarshal(schemaData, &schema); err != nil {
+				fmt.Printf("%s Invalid YAML schema: %v\n", fail("❌"), err)
+				os.Exit(1)
+			}
+		default:
+			fmt.Printf("%s Unsupported schema format: %s\n", fail("❌"), ext)
 			os.Exit(1)
 		}
+
 		fmt.Println(success("🚀 schema file loaded successfully"))
 
 		// Validate
