@@ -24,6 +24,8 @@ var (
 var envFile string
 var schemaFile string
 var suppressWarnings bool
+var strictMode bool
+var failFast bool
 
 var validateCmd = &cobra.Command{
 	Use:   "validate",
@@ -38,7 +40,6 @@ You can specify which keys are required and what type of value (string, number, 
 			fmt.Printf("%s Failed to read .env file: %v\n", fail("❌"), err)
 			os.Exit(1)
 		}
-		// fmt.Println("\n")
 		fmt.Println(success("🚀 .env file loaded successfully"))
 
 		// Load schema
@@ -71,19 +72,29 @@ You can specify which keys are required and what type of value (string, number, 
 		// Validate
 		fmt.Println(debug("\n🔍 Validating environment variables..."))
 
-		validateRes := validator.ValidateEnv(envMap, schema)
-
-		for key, value := range validateRes.Errors {
-			fmt.Printf("%-14s %-25s %s\n", fail("ERROR"), key, value)
-		}
+		validateRes := validator.ValidateEnv(envMap, schema, failFast, strictMode)
 
 		fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+		
 		if !validateRes.Passed {
-			fmt.Println(fail("❌ Validation failed. Please fix the errors above."))
+			for key, value := range validateRes.Errors {
+				fmt.Printf("%-14s %-25s %s\n", fail("ERROR"), key, value)
+			}
 			if !suppressWarnings {
 				printValidationWarnings(validateRes.Warnings)
 			}
+
+			if strictMode {
+				fmt.Println("\n")
+				fmt.Println(fail("❌ Strict Mode: Extra keys found in .env not in schema: "))
+				for _, k := range validateRes.ExtraKeys {
+					fmt.Printf("   - %s\n", k)
+				}
+			}
+
 			fmt.Println("\n")
+			fmt.Println(fail("❌ Validation failed. Please fix the errors above."))
+
 			os.Exit(1)
 		} else {
 			fmt.Println(success("✅ All checks passed. Your .env config looks great!"))
@@ -100,6 +111,8 @@ func init() {
 	validateCmd.Flags().StringVarP(&envFile, "env", "e", ".env", "Path to the .env file")
 	validateCmd.Flags().StringVarP(&schemaFile, "schema", "s", "schema.json", "Path to the schema file (JSON)")
 	validateCmd.Flags().BoolVarP(&suppressWarnings, "suppress-warnings", "w", false, "Suppress warning messages in output")
+	validateCmd.Flags().BoolVarP(&strictMode, "strict-mode", "t", false, "Fail if extra keys exist in .env that are not in schema")
+	validateCmd.Flags().BoolVarP(&failFast, "fail-fast", "f", false, "Stop validation after the first error")
 }
 
 func printValidationWarnings(warnings map[string]string) {

@@ -401,7 +401,7 @@ func TestValidateEnv(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := ValidateEnv(tt.env, tt.schema)
+			got := ValidateEnv(tt.env, tt.schema, false, false)
 
 			if got.Passed != tt.wantPass {
 				t.Errorf("Expected pass = %v, got %v", tt.wantPass, got.Passed)

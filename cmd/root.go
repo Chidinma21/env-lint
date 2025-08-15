@@ -24,7 +24,6 @@ Example usage:
 	Run: func(cmd *cobra.Command, args []string) {},
 }
 
-// Execute runs the root command and its subcommands
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(1)
