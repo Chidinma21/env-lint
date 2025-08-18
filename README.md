@@ -150,19 +150,19 @@ Or using shorthand flags:
 
 #### Available Flags:
 
-- `-e, --env` `string`
+- `-e, --env` `string`: 
 Path to the `.env` file (default: `.env`)
 
-- `-s, --schema` `string`
+- `-s, --schema` `string`: 
 Path to the schema file (default: schema.json)
 
-- `-w, --suppress-warnings` `boolean`
+- `-w, --suppress-warnings` `boolean`: 
 Suppress non-critical warnings in output
 
-- `-t, --strict-mode` `boolean`
+- `-t, --strict-mode` `boolean`: 
 Fail if `.env` contains keys not defined in schema
 
-- `-f, --fail-fast` `boolean`
+- `-f, --fail-fast` `boolean`: 
 Stop validation after the first error
 
 ### 🔍 Generate Schema
@@ -172,10 +172,10 @@ Stop validation after the first error
 
 #### Available Flags:
 
-- `-e, --env` `string`
+- `-e, --env` `string`: 
 Path to the `.env` file to generate schema from (default: `.env`)
 
-- `-f, --format` `string`
+- `-f, --format` `string`: 
 Output format: `json`, `yaml`, or `yml` (default: `json`)
 
 ## 🤝 Contributing
