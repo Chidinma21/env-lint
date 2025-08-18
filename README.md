@@ -24,11 +24,21 @@ Tame your environment configs. Catch missing or invalid `.env` variables *before
 
 ### 1. Install
 
+#### Option A: Build from source
+
 ```bash
 git clone https://github.com/chidinma21/env-lint.git
 cd env-lint
 go build -o env-lint
 ```
+
+#### Option B: Install via `go install`
+
+```bash
+go install github.com/chidinma21/env-lint@latest
+```
+This will download, build, and place the `env-lint` binary in your `$GOPATH/bin` (or `$GOBIN`).
+Make sure that directory is in your `PATH` so you can run `env-lint` from anywhere.
 
 ### 2. Prepare Your Files
 You’ll need:
