@@ -75,7 +75,7 @@ You can specify which keys are required and what type of value (string, number, 
 		validateRes := validator.ValidateEnv(envMap, schema, failFast, strictMode)
 
 		fmt.Println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-		
+
 		if !validateRes.Passed {
 			for key, value := range validateRes.Errors {
 				fmt.Printf("%-14s %-25s %s\n", fail("ERROR"), key, value)

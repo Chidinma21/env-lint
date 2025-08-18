@@ -22,9 +22,9 @@ type SchemaRule struct {
 }
 
 type ValidationResult struct {
-	Passed   bool
-	Errors   map[string]string
-	Warnings map[string]string
+	Passed    bool
+	Errors    map[string]string
+	Warnings  map[string]string
 	ExtraKeys []string
 }
 
@@ -195,18 +195,18 @@ func ValidateEnv(envMap map[string]string, schema map[string]SchemaRule, failFas
 				extraKeys = append(extraKeys, key)
 			}
 		}
-	
+
 		if len(extraKeys) > 0 {
 			passed = false
 		}
 	}
-	
+
 	passed = len(errors) == 0 && passed
 
 	return ValidationResult{
-		Passed:   passed,
-		Errors:   errors,
-		Warnings: warnings,
+		Passed:    passed,
+		Errors:    errors,
+		Warnings:  warnings,
 		ExtraKeys: extraKeys,
 	}
 }

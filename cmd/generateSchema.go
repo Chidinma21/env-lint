@@ -43,7 +43,7 @@ var generateSchemaCmd = &cobra.Command{
 		case "json":
 			out, _ := json.MarshalIndent(schema, "", "   ")
 			fmt.Println(string(out))
-		case "yaml" , "yml":
+		case "yaml", "yml":
 			out, _ := yaml.Marshal(schema)
 			fmt.Println(string(out))
 		default:
