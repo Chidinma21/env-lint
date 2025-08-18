@@ -42,9 +42,9 @@ go build -o env-lint
 ### 2. Prepare Your Files
 You’ll need:
 
-- A .env file with your environment variables
+- A `.env` file with your environment variables
 
-- A schema.json file describing expected keys, types, and whether they’re required
+- A `schema.json` or `schema.yaml` file describing expected keys, types, and whether they’re required
 
 #### Supported Schema Rules
 | Rule          | Type           | Description                                                         |
