@@ -2,29 +2,25 @@ project_name: env-lint
 
 builds:
   - id: env-lint
-    main: ./main.go
+    main: ./cmd/env-lint
     binary: env-lint
-    env:
-      - CGO_ENABLED=0
-    goos: [linux, darwin, windows]
-    goarch: [amd64, arm64]
-    ldflags:
-      - -s -w
+    goos:
+      - linux
+      - darwin
+      - windows
+    goarch:
+      - amd64
+      - arm64
 
 archives:
   - id: archive
     builds: [env-lint]
-    name_template: "{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}"
     format_overrides:
       - goos: windows
         format: zip
-    files:
-      - LICENSE
-      - README.md
-
-checksum:
-  name_template: "checksums.txt"
+    name_template: "{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 release:
-  draft: false
-  prerelease: "false"
+  github:
+    owner: chidinma21
+    name: env-lint
