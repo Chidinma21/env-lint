@@ -2,7 +2,7 @@ project_name: env-lint
 
 builds:
   - id: env-lint
-    main: ./cmd/env-lint
+    main: .
     binary: env-lint
     goos:
       - linux
