@@ -1,0 +1,13 @@
+{
+  "name": "@chidinma21/env-lint",
+  "version": "0.1.0",
+  "description": "A CLI tool to validate and lint .env files against a schema",
+  "bin": {
+    "env-lint": "./bin/env-lint.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/install.js"
+  },
+  "author": "Chidinma Onuora",
+  "license": "MIT"
+}
